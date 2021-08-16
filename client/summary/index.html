@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Summary Web Client</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+<header class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1>Summary Web Client</h1>
+    </div>
+</header>
+
+<!-- Dynamic Content  -->
+<div class="container">
+
+    <!-- Form -->
+    <form id="name-form">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Enter a web URL" id="url">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </form>
+    
+    <div class="row" style="height: 100px"></div>
+
+    <!-- Content Appears Here -->
+    <div class="row">
+        <h1 id="title"></h1>
+    </div>
+
+    <div class="row">
+        <h1 id="description"></h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4" id="images">
+        </div>
+    </div>
+</div>
+
+<script>
+    let baseURL = "https://api.thundah.com"
+    let form = document.querySelector("#name-form");
+    let input = form.querySelector("input");
+    let title = document.querySelector("#title");
+    let description = document.querySelector("#description");
+    let images = document.querySelector("#images");
+    form.addEventListener("submit", evt => {
+        evt.preventDefault();
+        fetch(baseURL + "/v1/summary?url=" + input.value)
+            .then(response => response.json())
+            .then(object => {
+                title.textContent = object.title;
+                description.textContent = object.description;
+                images.innerHTML = "";
+                if(object.images !== undefined) {
+                    for(i = 0; i < object.images.length; i++) {
+                    var image = document.createElement("img")
+                    image.setAttribute("src", object.images[i].url)
+                    images.appendChild(image)
+                  }
+                }
+            })
+            .catch(err => alert(err));
+    })
+</script>
+
+</body>
+</html>
