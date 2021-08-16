@@ -46,7 +46,7 @@ func main() {
 	//if it's blank, default to ":80", which means
 	//listen port 80 for requests addressed to any host
 	if len(addr) == 0 {
-		addr = ":80"
+		addr = ":443"
 	}
 
 	//get the TLS key and cert paths from environment variables
