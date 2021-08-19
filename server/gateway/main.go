@@ -25,6 +25,9 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+
+	// Exposes an API path where clients will be able to request this
+	// path by passing another URL in query string parameter
 	mux.HandleFunc("/v1/summary", handlers.SummaryHandler)
 	log.Printf("listening on %s...\n", addr)
 	log.Fatal(http.ListenAndServeTLS(addr, tlsCertPath, tlsKeyPath, mux))

@@ -41,28 +41,6 @@ type PageSummary struct {
 //a JSON-encoded PageSummary struct containing the page summary
 //meta-data.
 func SummaryHandler(w http.ResponseWriter, r *http.Request) {
-	/*TODO: add code and additional functions to do the following:
-	- Add an HTTP header to the response with the name
-	 `Access-Control-Allow-Origin` and a value of `*`. This will
-	  allow cross-origin AJAX requests to your server.
-	- Get the `url` query string parameter value from the request.
-	  If not supplied, respond with an http.StatusBadRequest error.
-	- Call fetchHTML() to fetch the requested URL. See comments in that
-	  function for more details.
-	- Call extractSummary() to extract the page summary meta-data,
-	  as directed in the assignment. See comments in that function
-	  for more details
-	- Close the response HTML stream so that you don't leak resources.
-	- Finally, respond with a JSON-encoded version of the PageSummary
-	  struct. That way the client can easily parse the JSON back into
-	  an object. Remember to tell the client that the response content
-	  type is JSON.
-	Helpful Links:
-	https://golang.org/pkg/net/http/#Request.FormValue
-	https://golang.org/pkg/net/http/#Error
-	https://golang.org/pkg/encoding/json/#NewEncoder
-	*/
-
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	pageURL := r.FormValue("url")
@@ -111,10 +89,12 @@ func fetchHTML(pageURL string) (io.ReadCloser, error) {
 	https://golang.org/pkg/net/http/#Get
 	*/
 
+	// check response status code
 	resp, err := http.Get(pageURL)
 	if resp.StatusCode >= 400 || err != nil {
 		return nil, errors.New("error")
 	}
+	// check response content type
 	ctype := resp.Header.Get("Content-Type")
 	if strings.HasPrefix(ctype, "text/html") {
 		return resp.Body, nil
@@ -125,22 +105,7 @@ func fetchHTML(pageURL string) (io.ReadCloser, error) {
 //extractSummary tokenizes the `htmlStream` and populates a PageSummary
 //struct with the page's summary meta-data.
 func extractSummary(pageURL string, htmlStream io.ReadCloser) (*PageSummary, error) {
-	/*TODO: tokenize the `htmlStream` and extract the page summary meta-data
-	according to the assignment description.
-	To test your implementation of this function, run the TestExtractSummary
-	test in summary_test.go. You can do that directly in Visual Studio Code,
-	or at the command line by running:
-		go test -run TestExtractSummary
-	Helpful Links:
-	https://drstearns.github.io/tutorials/tokenizing/
-	http://ogp.me/
-	https://developers.facebook.com/docs/reference/opengraph/
-	https://golang.org/pkg/net/url/#URL.ResolveReference
-	*/
-
 	pageSum := new(PageSummary)
-	// var images []*PreviewImage
-	// pageSum.Images = images
 	tokenizer := html.NewTokenizer(htmlStream)
 
 	for {
@@ -151,6 +116,8 @@ func extractSummary(pageURL string, htmlStream io.ReadCloser) (*PageSummary, err
 			if err == io.EOF {
 				break
 			}
+
+			// process the token according to the token type...
 		} else if tokenType == html.StartTagToken || tokenType == html.SelfClosingTagToken {
 			token := tokenizer.Token()
 
