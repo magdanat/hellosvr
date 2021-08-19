@@ -1,7 +1,10 @@
 package sessions
 
 import (
+	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"errors"
 )
 
@@ -33,23 +36,39 @@ var ErrInvalidID = errors.New("Invalid Session ID")
 //using `signingKey` as the HMAC signing key. An error is returned only
 //if there was an error generating random bytes for the session ID
 func NewSessionID(signingKey string) (SessionID, error) {
-	//TODO: if `signingKey` is zero-length, return InvalidSessionID
-	//and an error indicating that it may not be empty
+	// Return InvalidSessionID if signingKey is == 0
 	if len(signingKey) <= 0 {
-		return InvalidSessionID, nil
+		return InvalidSessionID, errors.New("Signing Key must not be empty.")
 	}
 
-	//TODO: Generate a new digitally-signed SessionID by doing the following:
-	//- create a byte slice where the first `idLength` of bytes
-	//  are cryptographically random bytes for the new session ID,
+	// Create random byte slice of idLength (32)
+	message := make([]byte, idLength)
+	_, err := rand.Read(message)
+	if err != nil {
+		return InvalidSessionID, err
+	}
+
 	//  and the remaining bytes are an HMAC hash of those ID bytes,
 	//  using the provided `signingKey` as the HMAC key.
+	// Convert String to byte array
+	key := []byte(signingKey)
+	remaining := hmac.New(sha256.New, key)
+
+	// write message into our message
+	remaining.Write(message)
+
+	// calculate the HMAC signature
+	remainingBytes := remaining.Sum(nil)
+
+	finalByteSlice := append(message, remainingBytes...)
+
 	//- encode that byte slice using base64 URL Encoding and return
 	//  the result as a SessionID type
+	sessionID := SessionID(base64.URLEncoding.EncodeToString(finalByteSlice))
 
 	//the following return statement is just a placeholder
 	//remove it when implementing the function
-	return InvalidSessionID, nil
+	return sessionID, nil
 }
 
 //ValidateID validates the string in the `id` parameter
