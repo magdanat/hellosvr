@@ -66,6 +66,7 @@ func NewSessionID(signingKey string) (SessionID, error) {
 	//  the result as a SessionID type
 	sessionID := SessionID(base64.URLEncoding.EncodeToString(finalByteSlice))
 
+	//
 	//the following return statement is just a placeholder
 	//remove it when implementing the function
 	return sessionID, nil
